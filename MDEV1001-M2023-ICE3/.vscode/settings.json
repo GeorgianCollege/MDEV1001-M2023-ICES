@@ -1,0 +1,16 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "ICE2Connection",
+            "database": "/Users/thomas/MDEV1001-M2023/ICE2DB"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:MDEV1001-M2023-ICE3}/ICE3DB",
+            "name": "ICE3Connection"
+        }
+    ]
+}
