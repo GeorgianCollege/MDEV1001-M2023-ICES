@@ -68,13 +68,13 @@
 				E9A652292A27E89F002D555D /* AppDelegate.swift */,
 				E9A6522B2A27E89F002D555D /* SceneDelegate.swift */,
 				E9A6522D2A27E89F002D555D /* DataViewController.swift */,
+				E9A6526B2A312405002D555D /* MovieTableViewCell.swift */,
 				E9A6522F2A27E89F002D555D /* Main.storyboard */,
 				E9A652352A27E8A0002D555D /* Assets.xcassets */,
 				E9A652372A27E8A0002D555D /* LaunchScreen.storyboard */,
 				E9A6523A2A27E8A0002D555D /* Info.plist */,
 				E9A652322A27E89F002D555D /* MDEV1001_M2023_ICE4.xcdatamodeld */,
 				E9A652422A27F40D002D555D /* DataSeeder.swift */,
-				E9A6526B2A312405002D555D /* MovieTableViewCell.swift */,
 			);
 			path = "MDEV1001-M2023-ICE4";
 			sourceTree = "<group>";
