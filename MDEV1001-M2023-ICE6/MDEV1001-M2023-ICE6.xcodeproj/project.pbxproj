@@ -18,6 +18,8 @@
 		E9A652432A27F40D002D555D /* DataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A652422A27F40D002D555D /* DataSeeder.swift */; };
 		E9A6526C2A312405002D555D /* MovieTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A6526B2A312405002D555D /* MovieTableViewCell.swift */; };
 		E9A6526E2A312EE6002D555D /* AddEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A6526D2A312EE6002D555D /* AddEditViewController.swift */; };
+		E9A652742A3A67E3002D555D /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A652732A3A67E3002D555D /* RegisterViewController.swift */; };
+		E9A652762A3A6807002D555D /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A652752A3A6807002D555D /* LoginViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 		E9A652422A27F40D002D555D /* DataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSeeder.swift; sourceTree = "<group>"; };
 		E9A6526B2A312405002D555D /* MovieTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieTableViewCell.swift; sourceTree = "<group>"; };
 		E9A6526D2A312EE6002D555D /* AddEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditViewController.swift; sourceTree = "<group>"; };
+		E9A652732A3A67E3002D555D /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
+		E9A652752A3A6807002D555D /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +82,8 @@
 				E9A6523A2A27E8A0002D555D /* Info.plist */,
 				E9A652322A27E89F002D555D /* MDEV1001_M2023_ICE6.xcdatamodeld */,
 				E9A652422A27F40D002D555D /* DataSeeder.swift */,
+				E9A652732A3A67E3002D555D /* RegisterViewController.swift */,
+				E9A652752A3A6807002D555D /* LoginViewController.swift */,
 			);
 			path = "MDEV1001-M2023-ICE6";
 			sourceTree = "<group>";
@@ -154,9 +160,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9A652762A3A6807002D555D /* LoginViewController.swift in Sources */,
 				E9A6522E2A27E89F002D555D /* DataViewController.swift in Sources */,
 				E9A6526E2A312EE6002D555D /* AddEditViewController.swift in Sources */,
 				E9A6522A2A27E89F002D555D /* AppDelegate.swift in Sources */,
+				E9A652742A3A67E3002D555D /* RegisterViewController.swift in Sources */,
 				E9A6526C2A312405002D555D /* MovieTableViewCell.swift in Sources */,
 				E9A652342A27E89F002D555D /* MDEV1001_M2023_ICE6.xcdatamodeld in Sources */,
 				E9A652432A27F40D002D555D /* DataSeeder.swift in Sources */,

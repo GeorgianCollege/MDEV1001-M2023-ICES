@@ -3,7 +3,6 @@ import CoreData
 
 class DataViewController: UIViewController, UITableViewDelegate, UITableViewDataSource
 {
-
     @IBOutlet weak var tableView: UITableView!
     
     var movies: [Movie] = []
@@ -25,13 +24,13 @@ class DataViewController: UIViewController, UITableViewDelegate, UITableViewData
                 
         let fetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
                 
-                do {
-                    movies = try context.fetch(fetchRequest)
-                    tableView.reloadData()
-                } catch {
+        do {
+                movies = try context.fetch(fetchRequest)
+                tableView.reloadData()
+        } catch {
                     print("Failed to fetch data: \(error)")
                 }
-            }
+        }
         
         func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
                 return movies.count
@@ -77,7 +76,8 @@ class DataViewController: UIViewController, UITableViewDelegate, UITableViewData
             if editingStyle == .delete
             {
                 let movie = movies[indexPath.row]
-                ShowDeleteConfirmationAlert(for: movie) { confirmed in
+                ShowDeleteConfirmationAlert(for: movie)
+                { confirmed in
                     if confirmed
                     {
                         self.deleteMovie(at: indexPath)
@@ -90,61 +90,69 @@ class DataViewController: UIViewController, UITableViewDelegate, UITableViewData
         {
             performSegue(withIdentifier: "AddEditSegue", sender: nil)
         }
+    
+    // New For ICE6
+    @IBAction func LogoutButton_Pressed(_ sender: UIButton)
+    {
+        // Dismiss the current view controller (DataViewController) to navigate back to the previous view controller (LoginViewController)
+        // Clear the username and password in the LoginViewController
+        LoginViewController.shared?.ClearLoginTextFields()
+        self.dismiss(animated: true, completion: nil)
+    }
         
-        override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    {
+        if segue.identifier == "AddEditSegue"
         {
-            if segue.identifier == "AddEditSegue"
+            if let addEditVC = segue.destination as? AddEditViewController
             {
-                if let addEditVC = segue.destination as? AddEditViewController
+                addEditVC.dataViewController = self
+                if let indexPath = sender as? IndexPath
                 {
-                    addEditVC.dataViewController = self
-                    if let indexPath = sender as? IndexPath
-                    {
-                       // Editing existing movie
-                       let movie = movies[indexPath.row]
-                       addEditVC.movie = movie
-                    } else {
-                        // Adding new movie
-                        addEditVC.movie = nil
-                    }
+                   // Editing existing movie
+                   let movie = movies[indexPath.row]
+                   addEditVC.movie = movie
+                } else {
+                    // Adding new movie
+                    addEditVC.movie = nil
                 }
             }
         }
+    }
         
-        func ShowDeleteConfirmationAlert(for movie: Movie, completion: @escaping (Bool) -> Void)
+    func ShowDeleteConfirmationAlert(for movie: Movie, completion: @escaping (Bool) -> Void)
+    {
+        let alert = UIAlertController(title: "Delete Movie", message: "Are you sure you want to delete this movie?", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            completion(false)
+        })
+        
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
+            completion(true)
+        })
+        
+        present(alert, animated: true, completion: nil)
+    }
+        
+    func deleteMovie(at indexPath: IndexPath)
+    {
+        let movie = movies[indexPath.row]
+        
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else
         {
-            let alert = UIAlertController(title: "Delete Movie", message: "Are you sure you want to delete this movie?", preferredStyle: .alert)
-            
-            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
-                completion(false)
-            })
-            
-            alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
-                completion(true)
-            })
-            
-            present(alert, animated: true, completion: nil)
+            return
         }
         
-        func deleteMovie(at indexPath: IndexPath)
-        {
-            let movie = movies[indexPath.row]
-            
-            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else
-            {
-                return
-            }
-            
-            let context = appDelegate.persistentContainer.viewContext
-            context.delete(movie)
-            
-            do {
-                try context.save()
-                movies.remove(at: indexPath.row)
-                tableView.deleteRows(at: [indexPath], with: .fade)
-            } catch {
-                print("Failed to delete movie: \(error)")
-            }
+        let context = appDelegate.persistentContainer.viewContext
+        context.delete(movie)
+        
+        do {
+            try context.save()
+            movies.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        } catch {
+            print("Failed to delete movie: \(error)")
         }
+    }
 }
-
