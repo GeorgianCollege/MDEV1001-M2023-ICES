@@ -105,4 +105,110 @@ class MovieCRUDViewController: UIViewController, UITableViewDelegate, UITableVie
         }
         return cell
     }
+    
+    // New for ICE8
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
+    {
+        performSegue(withIdentifier: "AddEditSegue", sender: indexPath)
+    }
+        
+    // Swipe Left Gesture
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath)
+        {
+            if editingStyle == .delete
+                {
+                    let movie = movies[indexPath.row]
+                    ShowDeleteConfirmationAlert(for: movie) { confirmed in
+                        if confirmed
+                        {
+                            self.deleteMovie(at: indexPath)
+                        }
+                    }
+                }
+        }
+    
+    @IBAction func AddButton_Pressed(_ sender: UIButton)
+    {
+        performSegue(withIdentifier: "AddEditSegue", sender: nil)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    {
+        if segue.identifier == "AddEditSegue"
+        {
+            if let addEditVC = segue.destination as? AddEditMovieViewController
+            {
+                addEditVC.movieViewController = self
+                if let indexPath = sender as? IndexPath
+                {
+                   // Editing existing movie
+                   let movie = movies[indexPath.row]
+                   addEditVC.movie = movie
+                } else {
+                    // Adding new movie
+                    addEditVC.movie = nil
+                }
+                
+                // Set the callback closure to reload movies
+                addEditVC.movieUpdateCallback = { [weak self] in
+                    self?.fetchMovies { movies, error in
+                        if let movies = movies
+                        {
+                            self?.movies = movies
+                            DispatchQueue.main.async {
+                                self?.tableView.reloadData()
+                            }
+                        }
+                        else if let error = error
+                        {
+                            print("Failed to fetch movies: \(error)")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func ShowDeleteConfirmationAlert(for movie: Movie, completion: @escaping (Bool) -> Void)
+    {
+        let alert = UIAlertController(title: "Delete Movie", message: "Are you sure you want to delete this movie?", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            completion(false)
+        })
+        
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
+            completion(true)
+        })
+        
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func deleteMovie(at indexPath: IndexPath)
+    {
+        let movie = movies[indexPath.row]
+
+        guard let url = URL(string: "https://mdev1001-m2023-api.onrender.com/api/delete/\(movie._id)") else {
+            print("Invalid URL")
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+
+        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            if let error = error {
+                print("Failed to delete movie: \(error)")
+                return
+            }
+
+            DispatchQueue.main.async {
+                self?.movies.remove(at: indexPath.row)
+                self?.tableView.deleteRows(at: [indexPath], with: .fade)
+            }
+        }
+            
+        task.resume()
+    }
+
 }
