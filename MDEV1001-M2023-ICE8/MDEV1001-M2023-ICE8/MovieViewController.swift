@@ -1,6 +1,6 @@
 import UIKit
 
-class MovieViewController: UIViewController, UITableViewDelegate, UITableViewDataSource
+class MovieCRUDViewController: UIViewController, UITableViewDelegate, UITableViewDataSource
 {
     @IBOutlet weak var tableView: UITableView!
         

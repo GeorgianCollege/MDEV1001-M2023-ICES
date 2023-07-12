@@ -1,5 +1,6 @@
 struct Movie: Codable
 {
+    let _id: String
     let movieID: String
     let title: String
     let studio: String
