@@ -1,15 +1,45 @@
 import UIKit
 
+struct UpdatedResponse: Codable
+{
+    let lastUpdated: Int
+}
+
 class MovieCRUDViewController: UIViewController, UITableViewDelegate, UITableViewDataSource
 {
     @IBOutlet weak var tableView: UITableView!
         
     var movies: [Movie] = []
+    var timer: Timer?
+    var lastUpdated: Int = 0
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
+        self.lastUpdated = Int(Date().timeIntervalSince1970 * 1000)
+        
+        fetchMoviesAndUpdateUI()
+        startPollingForUpdates()
+    }
+    
+    func startPollingForUpdates() {
+            stopPollingForUpdates() // Stop any existing timers
+            
+            // Schedule a timer to check for updates every 5 seconds
+            timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+                self?.checkForUpdates()
+            }
+        }
+        
+    func stopPollingForUpdates() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
+    
+        
+    func fetchMoviesAndUpdateUI() {
         fetchMovies { [weak self] movies, error in
             DispatchQueue.main.async
             {
@@ -35,6 +65,36 @@ class MovieCRUDViewController: UIViewController, UITableViewDelegate, UITableVie
                 }
             }
         }
+    }
+    
+    func checkForUpdates()
+    {
+        guard let url = URL(string: "https://mdev1001-m2023-api.onrender.com/api/has-updates") else {
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            if let error = error {
+                print("Error checking for updates: \(error)")
+                return
+            }
+            
+            guard let data = data else {
+                return
+            }
+            
+            do {
+                
+                let response = try JSONDecoder().decode(UpdatedResponse.self, from: data)
+                print ("Last Updated Locally: \(self?.lastUpdated) Last Updated Remotely: \(response.lastUpdated)")
+                if self!.lastUpdated < response.lastUpdated {
+                    self!.lastUpdated = response.lastUpdated
+                    self?.fetchMoviesAndUpdateUI()
+                }
+            } catch {
+                print("Error decoding update response: \(error)")
+            }
+        }.resume()
     }
     
     func displayErrorMessage(_ message: String)
