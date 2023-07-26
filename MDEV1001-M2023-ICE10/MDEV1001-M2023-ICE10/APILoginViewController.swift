@@ -28,7 +28,8 @@ class APILoginViewController: UIViewController
             print("Please enter both username and password.")
             return
         }
-                
+             
+        // Configuring the connection
         let urlString = "https://mdev1001-m2023-api.onrender.com/api/login"
         guard let url = URL(string: urlString) else
         {
@@ -104,6 +105,9 @@ class APILoginViewController: UIViewController
     {
         // This is the action method for the unwind segue.
         // It will be called when the unwind segue is performed, allowing you to handle any necessary actions.
+        
+        // Remove the token from UserDefaults or local storage to indicate logout
+        UserDefaults.standard.removeObject(forKey: "AuthToken")
         ClearLoginTextFields()
     }
     
