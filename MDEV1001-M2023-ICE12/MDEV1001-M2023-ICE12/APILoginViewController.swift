@@ -1,108 +1,122 @@
 import UIKit
+import FirebaseAuth
+import FirebaseFirestore
 
-class APILoginViewController: UIViewController
-{
-    // Register TextField Outlets
+class APILoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
-    
+
     static var shared: APILoginViewController?
-    
-    override func viewDidLoad()
-    {
+
+    override func viewDidLoad() {
         super.viewDidLoad()
         APILoginViewController.shared = self
+        
+        // Set the delegate for the text fields
+        usernameTextField.delegate = self
+        passwordTextField.delegate = self
+
+        // Set the default border color
+        usernameTextField.layer.borderColor = UIColor.gray.cgColor
+        passwordTextField.layer.borderColor = UIColor.gray.cgColor
+
+        // Set the border width
+        usernameTextField.layer.borderWidth = 1
+        passwordTextField.layer.borderWidth = 1
+        
+        // Add show password button
+        let showPasswordButton = UIButton(type: .custom)
+        showPasswordButton.setImage(UIImage(systemName: "eye"), for: .normal)
+        showPasswordButton.tintColor = .systemGreen // Set initial color to green
+        showPasswordButton.frame = CGRect(x: 0, y: 0, width: 40, height: 20)
+        showPasswordButton.contentHorizontalAlignment = .left // Align the image to the left
+        showPasswordButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
+
+        // Create a container view for padding
+        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 20)) // Width without padding
+        containerView.addSubview(showPasswordButton)
+
+        passwordTextField.rightView = containerView
+        passwordTextField.rightViewMode = .always
     }
     
-    func ClearLoginTextFields()
+    @objc func togglePasswordVisibility()
     {
+        passwordTextField.isSecureTextEntry.toggle()
+        if let containerView = passwordTextField.rightView,
+           let showPasswordButton = containerView.subviews.first as? UIButton {
+            showPasswordButton.tintColor = passwordTextField.isSecureTextEntry ? .systemGreen : .systemRed
+        }
+    }
+    
+    // UITextFieldDelegate method to change border color when editing begins
+    func textFieldDidBeginEditing(_ textField: UITextField)
+    {
+        textField.layer.borderColor = UIColor.blue.cgColor
+    }
+
+    // UITextFieldDelegate method to change border color back to default when editing ends
+    func textFieldDidEndEditing(_ textField: UITextField)
+    {
+        textField.layer.borderColor = UIColor.gray.cgColor
+    }
+
+    func ClearLoginTextFields() {
         usernameTextField.text = ""
         passwordTextField.text = ""
         usernameTextField.becomeFirstResponder()
     }
 
-    @IBAction func LoginButton_Pressed(_ sender: UIButton)
-    {
-        guard let username = usernameTextField.text, let password = passwordTextField.text else
-        {
+    @IBAction func LoginButton_Pressed(_ sender: UIButton) {
+        guard let username = usernameTextField.text, let password = passwordTextField.text else {
             print("Please enter both username and password.")
             return
         }
-                
-        let urlString = "https://mdev1004-m2023-livesite.onrender.com/api/login"
-        guard let url = URL(string: urlString) else
-        {
-            print("Invalid URL.")
-            return
-        }
-                
-        let parameters = ["username": username, "password": password]
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: [])
-        } catch {
-            print("Failed to encode parameters: \(error)")
-            return
-        }
-                
-        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            if let error = error
-            {
-                print("Failed to send request: \(error)")
-                return
-            }
-            
-            guard let data = data else
-            {
-                print("Empty response.")
-                return
-            }
-            
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                
-                if let success = json?["success"] as? Bool, success == true
-                {
-                    if let token = json?["token"] as? String
-                    {
-                        // Save the token in UserDefaults or other local storage
-                        UserDefaults.standard.set(token, forKey: "AuthToken")
-                        print("User logged in successfully.")
-                        
-                        DispatchQueue.main.async
-                        {
-                            // Proceed to the CRUDViewController
-                            self?.performSegue(withIdentifier: "LoginSegue", sender: nil)
-                        }
-                    } else {
-                        print("Token not found in the response.")
+
+        // Retrieve the email associated with the username
+        let db = Firestore.firestore()
+        let docRef = db.collection("usernames").document(username)
+
+        docRef.getDocument { document, error in
+            if let document = document, document.exists, let data = document.data(), let email = data["email"] as? String {
+                // Authenticate with Firebase using the retrieved email
+                Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+                    if let error = error {
+                        print("Login failed: \(error.localizedDescription)")
+                        self.displayErrorMessage(message: "Authentication Failed")
+                        return
                     }
-                } else {
-                    let errorMessage = json?["msg"] as? String ?? "Unknown error"
-                    print("Login failed: \(errorMessage)")
+
+                    print("User logged in successfully.")
+                    DispatchQueue.main.async {
+                        self.performSegue(withIdentifier: "LoginSegue", sender: nil)
+                    }
                 }
-            } catch {
-                print("Error decoding JSON response: \(error)")
+            } else {
+                print("Username not found.")
+                self.displayErrorMessage(message: "Authentication Failed")
             }
         }
-        
-        task.resume()
     }
     
-    @IBAction func RegisterButton_Pressed(_ sender: UIButton)
+    func displayErrorMessage(message: String)
     {
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+            self.ClearLoginTextFields() // Clear text fields and set focus to username
+        })
+        
+        DispatchQueue.main.async
+        {
+            self.present(alertController, animated: true)
+        }
+    }
+
+    @IBAction func RegisterButton_Pressed(_ sender: UIButton) {
         performSegue(withIdentifier: "RegisterSegue", sender: nil)
     }
-    
-    // New for ICE9
-    @IBAction func unwindToLoginViewController(_ unwindSegue: UIStoryboardSegue)
-    {
-        // This is the action method for the unwind segue.
-        // It will be called when the unwind segue is performed, allowing you to handle any necessary actions.
+
+    @IBAction func unwindToLoginViewController(_ unwindSegue: UIStoryboardSegue) {
         ClearLoginTextFields()
     }
-    
 }

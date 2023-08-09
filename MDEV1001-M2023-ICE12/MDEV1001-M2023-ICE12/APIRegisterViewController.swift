@@ -1,100 +1,54 @@
 import UIKit
+import FirebaseAuth
+import FirebaseFirestore
 
-class APIRegisterViewController: UIViewController
-{
-    
-    // Connect TextFields
+class APIRegisterViewController: UIViewController {
     @IBOutlet weak var firstNameTextField: UITextField!
     @IBOutlet weak var lastNameTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var confirmPasswordTextField: UITextField!
-    
-    override func viewDidLoad()
-    {
+
+    override func viewDidLoad() {
         super.viewDidLoad()
     }
-    
-    @IBAction func registerButton_Pressed(_ sender: UIButton)
-    {
+
+    @IBAction func registerButton_Pressed(_ sender: UIButton) {
         guard let username = usernameTextField.text,
-              let emailAddress = emailTextField.text,
-              let firstName = firstNameTextField.text,
-              let lastName = lastNameTextField.text,
-              let password = passwordTextField.text else
-        {
-                    print("Please enter all the required fields.")
-                    return
-        }
-                
-        let urlString = "https://mdev1004-m2023-livesite.onrender.com/api/register"
-        guard let url = URL(string: urlString) else
-        {
-            print("Invalid URL.")
+              let email = emailTextField.text,
+              let password = passwordTextField.text,
+              let confirmPassword = confirmPasswordTextField.text,
+              password == confirmPassword else {
+            print("Please enter valid email and matching passwords.")
             return
         }
-                
-        let parameters = [
-            "username": username,
-            "EmailAddress": emailAddress,
-            "FirstName": firstName,
-            "LastName": lastName,
-            "password": password
-        ]
-                
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: [])
-        } catch {
-            print("Failed to encode parameters: \(error)")
-            return
-        }
-        
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error
-            {
-                print("Failed to send request: \(error)")
+
+        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+            if let error = error {
+                print("Registration failed: \(error.localizedDescription)")
                 return
             }
-            
-            guard let data = data else
-            {
-                print("Empty response.")
-                return
-            }
-            
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                
-                if let success = json?["success"] as? Bool, success == true
-                {
-                    print("User registered successfully.")
-                    
-                    DispatchQueue.main.async
-                    {
-                        // Clear the username and password in the LoginViewController
-                        APILoginViewController.shared?.ClearLoginTextFields()
-                        self.dismiss(animated: true, completion: nil)
-                    }
+
+            // Store the username and email mapping in Firestore
+            let db = Firestore.firestore()
+            db.collection("usernames").document(username).setData(["email": email]) { err in
+                if let err = err {
+                    print("Error writing document: \(err)")
                 } else {
-                    let errorMessage = json?["msg"] as? String ?? "Unknown error"
-                    print("Registration failed: \(errorMessage)")
+                    print("Document successfully written!")
                 }
-            } catch {
-                print("Error decoding JSON response: \(error)")
+            }
+
+            print("User registered successfully.")
+            DispatchQueue.main.async {
+                APILoginViewController.shared?.ClearLoginTextFields()
+                self.dismiss(animated: true, completion: nil)
             }
         }
-        
-        task.resume()
     }
-    
-    @IBAction func CancelButton_Pressed(_ sender: UIButton)
-    {
-        // Clear the username and password in the LoginViewController
+
+    @IBAction func CancelButton_Pressed(_ sender: UIButton) {
         APILoginViewController.shared?.ClearLoginTextFields()
         dismiss(animated: true, completion: nil)
     }
