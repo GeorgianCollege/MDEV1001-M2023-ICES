@@ -2,15 +2,15 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class APILoginViewController: UIViewController, UITextFieldDelegate {
+class FirebaseLoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
 
-    static var shared: APILoginViewController?
+    static var shared: FirebaseLoginViewController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        APILoginViewController.shared = self
+        FirebaseLoginViewController.shared = self
         
         // Set the delegate for the text fields
         usernameTextField.delegate = self

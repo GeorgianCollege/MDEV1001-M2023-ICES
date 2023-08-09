@@ -2,7 +2,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class APIRegisterViewController: UIViewController {
+class FirebaseRegisterViewController: UIViewController {
     @IBOutlet weak var firstNameTextField: UITextField!
     @IBOutlet weak var lastNameTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
@@ -42,14 +42,14 @@ class APIRegisterViewController: UIViewController {
 
             print("User registered successfully.")
             DispatchQueue.main.async {
-                APILoginViewController.shared?.ClearLoginTextFields()
+                FirebaseLoginViewController.shared?.ClearLoginTextFields()
                 self.dismiss(animated: true, completion: nil)
             }
         }
     }
 
     @IBAction func CancelButton_Pressed(_ sender: UIButton) {
-        APILoginViewController.shared?.ClearLoginTextFields()
+        FirebaseLoginViewController.shared?.ClearLoginTextFields()
         dismiss(animated: true, completion: nil)
     }
 }
