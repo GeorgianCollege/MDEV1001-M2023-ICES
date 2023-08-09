@@ -27,7 +27,7 @@ class APILoginViewController: UIViewController, UITextFieldDelegate {
         // Add show password button
         let showPasswordButton = UIButton(type: .custom)
         showPasswordButton.setImage(UIImage(systemName: "eye"), for: .normal)
-        showPasswordButton.tintColor = .systemGreen // Set initial color to green
+        showPasswordButton.tintColor = .systemBlue // Set initial color to green
         showPasswordButton.frame = CGRect(x: 0, y: 0, width: 40, height: 20)
         showPasswordButton.contentHorizontalAlignment = .left // Align the image to the left
         showPasswordButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
@@ -45,7 +45,7 @@ class APILoginViewController: UIViewController, UITextFieldDelegate {
         passwordTextField.isSecureTextEntry.toggle()
         if let containerView = passwordTextField.rightView,
            let showPasswordButton = containerView.subviews.first as? UIButton {
-            showPasswordButton.tintColor = passwordTextField.isSecureTextEntry ? .systemGreen : .systemRed
+            showPasswordButton.tintColor = passwordTextField.isSecureTextEntry ? .systemBlue : .systemRed
         }
     }
     
